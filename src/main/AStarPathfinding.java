@@ -7,7 +7,6 @@ public class AStarPathfinding {
 
     public AStarPathfinding(Tile[][] mapa) {
         this.mapa = mapa;
-
     }
 
     public List<Node> aStar(Node start, Node end) {
@@ -15,20 +14,19 @@ public class AStarPathfinding {
             return null;  // Si el objetivo es un obstáculo, no hay camino posible
         }
 
-
-        // Inicializamos las listas para cada nueva ejecución de A*
+        // Lista de nodos abiertos y cerrados (usamos HashMap para acceder rápido a los nodos por sus coordenadas)
         PriorityQueue<Node> openList = new PriorityQueue<>(Comparator.comparingDouble(n -> n.fCost));
-        Set<Node> closedList = new HashSet<>();
+        Map<String, Node> closedList = new HashMap<>();
 
-        // Inicializamos los costos del nodo de inicio
+        // Inicializamos el nodo de inicio
         start.gCost = 0;
-        start.hCost = calularHeuristica(start, end);
+        start.hCost = calcularHeuristica(start, end);
         start.fCost = start.gCost + start.hCost;
         openList.add(start);
 
         while (!openList.isEmpty()) {
             Node currentNode = openList.poll();
-            closedList.add(currentNode);
+            closedList.put(currentNode.getKey(), currentNode);
 
             if (currentNode.x == end.x && currentNode.y == end.y) {
                 // Llegamos al objetivo, reconstruir el camino
@@ -45,7 +43,7 @@ public class AStarPathfinding {
             List<Node> vecinos = getVecinos(currentNode);
 
             for (Node vecino : vecinos) {
-                if (closedList.contains(vecino)) {
+                if (closedList.containsKey(vecino.getKey())) {
                     continue;  // Si el vecino ya ha sido procesado, lo saltamos
                 }
 
@@ -55,7 +53,7 @@ public class AStarPathfinding {
                 if (tentativeGCost < vecino.gCost) {
                     vecino.parent = currentNode;
                     vecino.gCost = tentativeGCost;
-                    vecino.hCost = calularHeuristica(vecino, end);
+                    vecino.hCost = calcularHeuristica(vecino, end);
                     vecino.fCost = vecino.gCost + vecino.hCost;
 
                     if (!openList.contains(vecino)) {
@@ -67,18 +65,19 @@ public class AStarPathfinding {
         return null;  // Si no encontramos un camino
     }
 
-
-    public double calularHeuristica(Node start, Node end) {
-        return Math.abs(start.x - end.x) + Math.abs(start.y - end.y);//distancia manhatan
+    public double calcularHeuristica(Node start, Node end) {
+        return Math.abs(start.x - end.x) + Math.abs(start.y - end.y);  // Distancia de Manhattan
     }
+
     public List<Node> getVecinos(Node node) {
         List<Node> vecinos = new ArrayList<>();
 
-        // Direcciones cardinales y diagonales
-        int[] dx = {-1, 1, 0, 0, -1, 1, -1, 1};  // Cambios en la coordenada x
+        // Direcciones cardinales (sin diagonales)
+        int[] dx = {-1, 1, 0, 0, -1, 1, -1, 1};  // Direcciones con diagonales
         int[] dy = {0, 0, -1, 1, -1, -1, 1, 1};  // Cambios en la coordenada y
-        //reemplazar por 8 para contemplar las diagonales
-        for (int i = 0; i < 4; i++) {
+
+        // Generar los vecinos cardinales
+        for (int i = 0; i < 8; i++) {
             int newX = node.x + dx[i];
             int newY = node.y + dy[i];
 
@@ -86,13 +85,11 @@ public class AStarPathfinding {
             if (newX >= 0 && newX < mapa.length && newY >= 0 && newY < mapa[0].length) {
                 // Verificar si el tile no es un obstáculo
                 if (!mapa[newX][newY].isObstaculo()) {
-
                     vecinos.add(new Node(newX, newY));
                 }
             }
         }
         return vecinos;
     }
-
-
 }
+
