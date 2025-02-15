@@ -1,4 +1,4 @@
-package main;
+package main.java.com;
 
 import java.util.*;
 
@@ -77,7 +77,7 @@ public class AStarPathfinding {
         int[] dy = {0, 0, -1, 1, -1, -1, 1, 1};  // Cambios en la coordenada y
 
         // Generar los vecinos cardinales
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 4; i++) {
             int newX = node.x + dx[i];
             int newY = node.y + dy[i];
 

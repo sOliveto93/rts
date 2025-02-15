@@ -1,4 +1,4 @@
-package main;
+package main.java.com;
 
 import java.awt.*;
 
@@ -15,11 +15,7 @@ public class Mapa {
             for (int j = 0; j < tiles[i].length; j++) {
 
                 int tileSize = tiles[i][j].getSize();
-                g.setColor(tiles[i][j].getBackground());
-                g.fillRect(i * tileSize, j * tileSize, tileSize, tileSize);
-
-                g.setColor(Color.black);
-                g.drawRect(i * tileSize, j * tileSize, tileSize, tileSize);
+                g.drawImage(tiles[i][j].getImage(),i*tileSize,j*tileSize,null);
 
             }
         }

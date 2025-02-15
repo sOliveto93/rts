@@ -1,4 +1,4 @@
-package main;
+package main.java.com;
 import java.util.Objects;
 
 public class Node {

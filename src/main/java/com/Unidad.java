@@ -1,4 +1,4 @@
-package main;
+package main.java.com;
 
 import java.awt.*;
 import java.util.List;
@@ -11,7 +11,7 @@ public class Unidad {
     private int vida;
     private int ataque;
     private int defensa;
-    private int size = 30;
+    private int size = 15;
     private boolean isSelected = false;
     private int targetX;
     private int targetY;
@@ -89,21 +89,25 @@ public void move() {
     if (path != null && !path.isEmpty()) {
         Node siguienteNodo = path.get(0);
 
+        //centramos el nodo a la celda
+        int targeXPos= siguienteNodo.x*64+(64-size)/2;
+        int targeYPos= siguienteNodo.y*64+(64-size)/2;
+
         // Desplazar la unidad hacia el siguiente nodo
-        if (x < siguienteNodo.x * 64) {
+        if (x < targeXPos) {
             x++;
-        } else if (x > siguienteNodo.x * 64) {
+        } else if (x > targeXPos) {
             x--;
         }
 
-        if (y < siguienteNodo.y * 64) {
+        if (y < targeYPos) {
             y++;
-        } else if (y > siguienteNodo.y * 64) {
+        } else if (y > targeYPos) {
             y--;
         }
 
         // Si la unidad llega al siguiente nodo, lo eliminamos de la lista de camino
-        if (Math.abs(x - siguienteNodo.x * 64) < 2 && Math.abs(y - siguienteNodo.y * 64) < 2) {
+        if (Math.abs(x - targeXPos) < TOLERANCIA_ARRIBO && Math.abs(y - targeYPos) < TOLERANCIA_ARRIBO) {
             path.remove(0);  // Eliminar el nodo actual del camino
         }
 

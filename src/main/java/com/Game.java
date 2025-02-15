@@ -1,4 +1,4 @@
-package main;
+package main.java.com;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -10,14 +10,15 @@ public class Game extends JFrame implements Runnable {
     long nanoSeg = 1_000_000_000;
     Mapa mapa;
     List<Unidad> unidades = new ArrayList<>();
+
     Panel panel;
     private Thread hiloGame;
 
     public Game() {
-        mapa = new Mapa(new TileSheet(10, 10));
-        unidades.add(new Unidad("soldado raso", 5 * 64, 5 * 64, 2, 100, 5, 5));
-        unidades.add(new Unidad("soldado raso", 4 * 64, 4 * 64, 2, 100, 5, 5));
-        unidades.add(new Unidad("soldado raso", 6 * 64, 6 * 64, 4, 100, 5, 5));
+        mapa = new Mapa(new TileSheet());
+        unidades.add(new Unidad("soldado raso", (5 * 64)+32, (5 * 64)+32, 2, 100, 5, 5));
+        unidades.add(new Unidad("soldado raso", (4 * 64)+32, (4 * 64)+32, 2, 100, 5, 5));
+        unidades.add(new Unidad("soldado raso", (6 * 64)+32, (2 * 64)+32, 4, 100, 5, 5));
 
         panel=new Panel(this);
         start();

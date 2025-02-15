@@ -1,4 +1,4 @@
-package main;
+package main.java.com;
 
 import java.awt.*;
 
@@ -6,10 +6,10 @@ public class Tile {
     private int size=64;
     private Color background=Color.BLUE;
     private boolean isObstaculo=false;
+    private Image image;
 
-
-    public Tile(Color color,boolean isObstaculo){
-        this.background=color;
+    public Tile(Image image,boolean isObstaculo){
+        this.image=image;
         this.isObstaculo=isObstaculo;
 
     }
@@ -38,5 +38,11 @@ public class Tile {
         isObstaculo = obstaculo;
     }
 
+    public Image getImage() {
+        return image;
+    }
 
+    public void setImage(Image image) {
+        this.image = image;
+    }
 }
