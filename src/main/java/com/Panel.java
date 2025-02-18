@@ -119,7 +119,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
         if (e.getButton() == MouseEvent.BUTTON1) {  // clic izquierdo
             startX = e.getX();
             startY = e.getY();
-             // Empezamos el proceso de selección
+            // Empezamos el proceso de selección
 
             // Si no se hizo clic en ninguna unidad, deseleccionamos todas
             for (Unidad u : unidades) {
@@ -138,15 +138,12 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
                     int targetX = e.getX() / 64;
                     int targetY = e.getY() / 64;
                     Tile targetTile = mapa.getTileSheet()[targetX][targetY];
+
                     if (!targetTile.isObstaculo()) {
+
                         Node objetivo = new Node(targetX, targetY);
-                        List<Node> path = new AStarPathfinding(mapa.getTileSheet()).aStar(
-                                new Node(u.getX() / 64, u.getY() / 64), objetivo
-                        );
-                        if (path != null) {
-                            u.setPath(path);  // Asignamos el camino encontrado
-                            u.setMoviendo(true);  // Iniciamos el movimiento
-                        }
+                        u.setObjetivo(objetivo, mapa.getTileSheet());
+
                     } else {
                         System.out.println("El objetivo es un obstáculo, no se puede mover.");
                         u.setMoviendo(false);

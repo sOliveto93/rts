@@ -238,7 +238,7 @@ public void move() {
         //evitamos acumulacion de calculos
         if (!pathFindingInProgress) {
             this.objetivo = objetivo;
-            //hilo separado para que no se sobrecargue
+            //hilo separado para que no se sobrecargue             unidad, objetivo, tileMap[][]
             PathFindingTask pathFindingTask = new PathFindingTask(this, objetivo, mapa);
             Thread pathFindingHilo = new Thread(pathFindingTask);
             pathFindingInProgress = true;  // Marcamos que el cálculo está en progreso
