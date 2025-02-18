@@ -2,12 +2,11 @@ package main.java.com;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 import java.util.List;
 
-public class Panel extends JPanel implements MouseListener, MouseMotionListener {
+public class Panel extends JPanel implements MouseListener, MouseMotionListener, KeyListener {
+    private Camara camara;
     private Mapa mapa;
     private List<Unidad> unidades;
     private float fps;
@@ -21,18 +20,26 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     private static final int TOLERANCE = 5;
 
     public Panel(Game game) {
+
         this.mapa = game.getMapa();
         setPreferredSize(new Dimension(game.getWidth(), game.getHeight()));
         setBackground(Color.white);
         unidades = game.getUnidades();
         font = new Font("Arial", Font.BOLD, 20);
+
+        camara=new Camara(game.getWidth(),game.getHeight());
+
         addMouseListener(this);
         addMouseMotionListener(this);
+        addKeyListener(this);
+        setFocusable(true);
     }
 
     @Override
     public void paint(Graphics g) {
         super.paintComponent(g);
+
+        g.translate(-camara.getX(),-camara.getY());
 
         mapa.paint(g);
 
@@ -117,8 +124,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {  // clic izquierdo
-            startX = e.getX();
-            startY = e.getY();
+            startX = e.getX()+camara.getX();
+            startY = e.getY()+camara.getY();
             // Empezamos el proceso de selección
 
             // Si no se hizo clic en ninguna unidad, deseleccionamos todas
@@ -135,8 +142,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             for (Unidad u : unidades) {
                 if (u.isSelected()) {
                     // Obtener coordenadas para el destino y mover la unidad
-                    int targetX = e.getX() / 64;
-                    int targetY = e.getY() / 64;
+                    int targetX = (e.getX()+camara.getX()) / 64;
+                    int targetY = (e.getY()+camara.getY()) / 64;
                     Tile targetTile = mapa.getTileSheet()[targetX][targetY];
 
                     if (!targetTile.isObstaculo()) {
@@ -152,25 +159,31 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
             }
         }
         if (e.getButton() == MouseEvent.BUTTON1) {  // clic izquierdo
-            endX = e.getX();
-            endY = e.getY();
+            // Ajustar las coordenadas del clic con el desplazamiento de la cámara
+            int adjustedStartX = startX ;
+            int adjustedStartY = startY ;
+            int adjustedEndX =  e.getX()+ camara.getX();
+            int adjustedEndY =  e.getY()+camara.getY();
+
             isSelecting = false;  // Terminamos la selección
 
+
+
             // Verificamos si el movimiento fue un arrastre o un clic simple
-            if (Math.abs(startX - endX) < TOLERANCE && Math.abs(startY - endY) < TOLERANCE) {
+            if (Math.abs(adjustedStartX - adjustedEndX) < TOLERANCE && Math.abs(adjustedStartY - adjustedEndY) < TOLERANCE) {
                 // Es un clic simple: seleccionar o deseleccionar una unidad
                 for (Unidad u : unidades) {
-                    if (u.clickaUnidad(startX, startY)) {
+                    if (u.clickaUnidad(adjustedStartX, adjustedStartY)) {
                         u.setSelected(!u.isSelected());  // Alternar selección
                     }
                 }
             } else {
                 // Es un arrastre: seleccionamos unidades dentro del área
-                Rectangle selectionRect = new Rectangle(Math.min(startX, endX), Math.min(startY, endY),
-                        Math.abs(endX - startX), Math.abs(endY - startY));
+                Rectangle selectionRect = new Rectangle(Math.min(adjustedStartX, adjustedEndX), Math.min(adjustedStartY, adjustedEndY),
+                        Math.abs(adjustedEndX - adjustedStartX), Math.abs(adjustedEndY - adjustedStartY));
 
                 for (Unidad u : unidades) {
-                    if (selectionRect.contains(u.getX(), u.getY())) {
+                    if (selectionRect.contains( u.getX(), u.getY())) {
                         u.setSelected(true);  // Seleccionamos la unidad
                     } else {
                         u.setSelected(false);  // Deseleccionamos
@@ -184,10 +197,13 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
     public void mouseDragged(MouseEvent e) {
         isSelecting = true;
         if (isSelecting) {
-            endX = e.getX();
-            endY = e.getY();
+            // Ajustar las coordenadas de arrastre con el desplazamiento de la cámara
+            endX = e.getX() + camara.getX();
+            endY = e.getY() + camara.getY();
         }
     }
+
+
 
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -209,4 +225,29 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
     }
 
+    // evento teclado
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        int moveSpeed = 10;  // La velocidad de desplazamiento de la cámara
+        if (e.getKeyCode() == KeyEvent.VK_W) {
+            camara.mover(0, -moveSpeed, mapa.getTileSheet().length * 64, mapa.getTileSheet()[0].length * 64); // Mover hacia arriba
+        } else if (e.getKeyCode() == KeyEvent.VK_S) {
+            camara.mover(0, moveSpeed, mapa.getTileSheet().length * 64, mapa.getTileSheet()[0].length * 64); // Mover hacia abajo
+        } else if (e.getKeyCode() == KeyEvent.VK_A) {
+            camara.mover(-moveSpeed, 0, mapa.getTileSheet().length * 64, mapa.getTileSheet()[0].length * 64); // Mover hacia la izquierda
+        } else if (e.getKeyCode() == KeyEvent.VK_D) {
+            camara.mover(moveSpeed, 0, mapa.getTileSheet().length * 64, mapa.getTileSheet()[0].length * 64); // Mover hacia la derecha
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
+    }
 }

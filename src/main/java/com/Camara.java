@@ -11,9 +11,23 @@ public class Camara {
         this.y = 0;
     }
 
-    public void mover(int dx, int dy) {
+    public void mover(int dx, int dy, int mapaWidth, int mapaHeight) {
         this.x += dx;
         this.y += dy;
+
+        // Limitar el movimiento de la cámara dentro de los límites del mapa
+        if (this.x < 0) {
+            this.x = 0;
+        }
+        if (this.y < 0) {
+            this.y = 0;
+        }
+        if (this.x > mapaWidth - ancho) {
+            this.x = mapaWidth - ancho;
+        }
+        if (this.y > mapaHeight - alto) {
+            this.y = mapaHeight - alto;
+        }
     }
 
     public int getX() {
