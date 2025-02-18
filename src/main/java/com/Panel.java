@@ -1,5 +1,8 @@
 package main.java.com;
 
+import main.java.com.entidad.Unidad;
+import main.java.com.logica.Node;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -42,8 +45,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
         mapa.paint(g,camara);
 
         // Dibujar las unidades
-        for (int i = 0; i < unidades.size(); i++) {
-            unidades.get(i).paint(g);
+        for (Unidad unidad : unidades) {
+            unidad.paint(g);
         }
 
         // Dibujar el camino final (si existe)
@@ -51,19 +54,19 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
             if (u.isSelected() && u.isMoviendo()) {
 
                 List<Node> path = u.getPath();
-                if (path != null && path.size() > 0) { // Aseguramos que haya al menos un nodo en el camino
-                    g.setColor(Color.black); // Color para el camino final
+                if (path != null && !path.isEmpty()) {
+                    g.setColor(Color.black);
 
                     // Obtenemos la posición de la unidad (su ubicación actual)
                     int startX = u.getX() / 64;  // La posición en el grid (en unidades de tile)
                     int startY = u.getY() / 64;
 
                     // Primero, dibujamos una línea desde la posición actual de la unidad al primer nodo del camino
-                    Node startNode = path.get(0); // El primer nodo del camino
+                    Node startNode = path.getFirst(); // El primer nodo del camino
                     int x1 = startX * 64 + 32;
                     int y1 = startY * 64 + 32;
-                    int x2 = startNode.x * 64 + 32;
-                    int y2 = startNode.y * 64 + 32;
+                    int x2 = startNode.getX() * 64 + 32;
+                    int y2 = startNode.getY() * 64 + 32;
                     g.drawLine(x1, y1, x2, y2);
 
                     // Luego, dibujamos las líneas entre los nodos del camino
@@ -71,10 +74,10 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
                         Node node1 = path.get(i);
                         Node node2 = path.get(i + 1);
 
-                        int xStart = node1.x * 64 + 32;
-                        int yStart = node1.y * 64 + 32;
-                        int xEnd = node2.x * 64 + 32;
-                        int yEnd = node2.y * 64 + 32;
+                        int xStart = node1.getX() * 64 + 32;
+                        int yStart = node1.getY() * 64 + 32;
+                        int xEnd = node2.getX() * 64 + 32;
+                        int yEnd = node2.getY() * 64 + 32;
 
                         g.drawLine(xStart, yStart, xEnd, yEnd);
                     }
@@ -182,9 +185,9 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
 
                 for (Unidad u : unidades) {
                     if (selectionRect.contains( u.getX(), u.getY())) {
-                        u.setSelected(true);  // Seleccionamos la unidad
+                        u.setSelected(true);
                     } else {
-                        u.setSelected(false);  // Deseleccionamos
+                        u.setSelected(false);
                     }
                 }
             }
@@ -193,7 +196,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        isSelecting = true;
+        isSelecting = true; // esto siempre da true.. es solo pa que se muestre el rect de seleccion ARREGLAR
         if (isSelecting) {
             // Ajustar las coordenadas de arrastre con el desplazamiento de la cámara
             endX = e.getX() + camara.getX();

@@ -1,5 +1,7 @@
 package main.java.com;
 
+import main.java.com.entidad.Unidad;
+
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +14,7 @@ public class Game extends JFrame implements Runnable {
     List<Unidad> unidades = new ArrayList<>();
 
     Panel panel;
-    private Thread hiloGame;
+    Thread hiloGame;
 
     public Game() {
         mapa = new Mapa(new TileSheet());

@@ -1,6 +1,14 @@
-package main.java.com;
+package main.java.com.entidad;
 
+import main.java.com.Tile;
+import main.java.com.logica.Node;
+import main.java.com.logica.PathFindingTask;
+
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 public class Unidad {
@@ -11,7 +19,7 @@ public class Unidad {
     private int vida;
     private int ataque;
     private int defensa;
-    private int size = 15;
+    private int size = 64;
     private boolean isSelected = false;
     private int targetX;
     private int targetY;
@@ -19,8 +27,12 @@ public class Unidad {
     private boolean pathFindingInProgress = false;
     private Node objetivo;
     private List<Node> path;
-    private int currentTargetIndex = 0;
-    private long lastMoveTime = 0;
+    BufferedImage spriteIdle;
+    private int indexSrpiteIdle=0;
+    //variables para manejar la velocidad de actualizacion de dibujado
+    private long lastSpriteUpdate=0;
+    private final long intervaloActualizacion=100;
+
     public Unidad(String nombre, int x, int y, int velocidad, int vida, int ataque, int defensa) {
         this.nombre = nombre;
         this.x = x;
@@ -29,24 +41,34 @@ public class Unidad {
         this.vida = vida;
         this.ataque = ataque;
         this.defensa = defensa;
+        loadSpriteSheet();
     }
 
     public void paint(Graphics g) {
         if (isSelected) {
             g.setColor(Color.CYAN);
             g.drawRect(x, y, size, size);
-        } else {
-            g.setColor(Color.MAGENTA);
         }
-        g.fillRect(x, y, size, size);
+
+            g.drawImage(getTileImage(indexSrpiteIdle),x,y,null);
+
+
     }
 
     public void update() {
         if (moviendo) {
             move();
         }
-    }
+        long curretTime=System.currentTimeMillis();
+        if(curretTime-lastSpriteUpdate>intervaloActualizacion){
+            indexSrpiteIdle++;
+            if(indexSrpiteIdle > 2){//cambiar esto para que sea variable por la hoja de sprites
+                indexSrpiteIdle=0;
+            }
+            lastSpriteUpdate=curretTime;
+        }
 
+    }
 
     public boolean clickaUnidad(int mouseX, int mouseY) {
         return mouseX >= x
@@ -57,41 +79,15 @@ public class Unidad {
     // Añadir una constante de tolerancia de llegada
     private static final double TOLERANCIA_ARRIBO = 2.0; // Ajusta este valor según lo que consideres apropiado
 
-//    public void move() {
-//        if (path != null && !path.isEmpty()) {
-//            Node siguienteNodo = path.get(0);  // El primer nodo en el camino
-//
-//            // Desplazar la unidad hacia el siguiente nodo
-//            if (x < siguienteNodo.x * 64) {
-//                x++;  // Mover hacia la derecha
-//            } else if (x > siguienteNodo.x * 64) {
-//                x--;  // Mover hacia la izquierda
-//            }
-//
-//            if (y < siguienteNodo.y * 64) {
-//                y++;  // Mover hacia abajo
-//            } else if (y > siguienteNodo.y * 64) {
-//                y--;  // Mover hacia arriba
-//            }
-//
-//            // Si la unidad llega al siguiente nodo, lo eliminamos de la lista de camino
-//            if (x == siguienteNodo.x * 64 && y == siguienteNodo.y * 64) {
-//                path.remove(0);  // Eliminar el nodo actual del camino
-//            }
-//
-//            // Si no hay más nodos en el camino, detener el movimiento
-//            if (path.isEmpty()) {
-//                moviendo = false;
-//            }
-//        }
-//    }
+
 public void move() {
     if (path != null && !path.isEmpty()) {
-        Node siguienteNodo = path.get(0);
+        Node siguienteNodo = path.getFirst();
+
 
         //centramos el nodo a la celda
-        int targeXPos= siguienteNodo.x*64+(64-size)/2;
-        int targeYPos= siguienteNodo.y*64+(64-size)/2;
+        int targeXPos= siguienteNodo.getX()*64+(64-size)/2;
+        int targeYPos= siguienteNodo.getY()*64+(64-size)/2;
 
         // Desplazar la unidad hacia el siguiente nodo
         if (x < targeXPos) {
@@ -108,7 +104,7 @@ public void move() {
 
         // Si la unidad llega al siguiente nodo, lo eliminamos de la lista de camino
         if (Math.abs(x - targeXPos) < TOLERANCIA_ARRIBO && Math.abs(y - targeYPos) < TOLERANCIA_ARRIBO) {
-            path.remove(0);  // Eliminar el nodo actual del camino
+            path.removeFirst();  // Eliminar el nodo actual del camino
         }
 
         // Si no hay más nodos en el camino, detener el movimiento
@@ -119,11 +115,25 @@ public void move() {
 }
 
 
-    public List<Node> calcularPath(Tile[][] mapa) {
-        AStarPathfinding aStar = new AStarPathfinding(mapa);
-        Node startNode = new Node(this.x / 64, this.y / 64);//Convertir la posición de la unidad en nodos
-        Node endNode = this.objetivo;
-        return aStar.aStar(startNode, endNode);
+    public void loadSpriteSheet() {
+        try {
+            InputStream input = getClass().getClassLoader().getResourceAsStream("img/idle.png");
+            if (input != null) {
+                spriteIdle = ImageIO.read(input);
+
+            } else {
+                System.out.println("no se encontro el recurso");
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    public Image getTileImage(int n) {
+        int spriteSheetWidth = spriteIdle.getWidth();
+
+        int cols = spriteSheetWidth / size;
+
+        return spriteIdle.getSubimage(n * size, 0, size, size);
     }
 
     //-------------------------------get y set------------------
@@ -231,7 +241,7 @@ public void move() {
         int mapaWidth = mapa.length;  // Número de filas
         int mapaHeight = mapa[0].length;  // Número de columnas
 
-        if (objetivo.x < 0 || objetivo.x >= mapaWidth || objetivo.y < 0 || objetivo.y >= mapaHeight) {
+        if (objetivo.getX() < 0 || objetivo.getX() >= mapaWidth || objetivo.getY() < 0 || objetivo.getY() >= mapaHeight) {
             System.out.println("Clic fuera de los límites del mapa");
             return;  // No hacer nada si el clic está fuera de los límites
         }

@@ -1,16 +1,18 @@
-package main.java.com;
+package main.java.com.logica;
+
+import main.java.com.Tile;
 
 import java.util.*;
 
 public class AStarPathfinding {
-    private Tile[][] mapa;
+    final private Tile[][] MAPA;
 
     public AStarPathfinding(Tile[][] mapa) {
-        this.mapa = mapa;
+        this.MAPA = mapa;
     }
 
     public List<Node> aStar(Node start, Node end) {
-        if (mapa[end.x][end.y].isObstaculo()) {
+        if (MAPA[end.x][end.y].isObstaculo()) {
             return null;  // Si el objetivo es un obstáculo, no hay camino posible
         }
 
@@ -82,9 +84,9 @@ public class AStarPathfinding {
             int newY = node.y + dy[i];
 
             // Verificar si la nueva posición está dentro de los límites del mapa
-            if (newX >= 0 && newX < mapa.length && newY >= 0 && newY < mapa[0].length) {
+            if (newX >= 0 && newX < MAPA.length && newY >= 0 && newY < MAPA[0].length) {
                 // Verificar si el tile no es un obstáculo
-                if (!mapa[newX][newY].isObstaculo()) {
+                if (!MAPA[newX][newY].isObstaculo()) {
                     vecinos.add(new Node(newX, newY));
                 }
             }

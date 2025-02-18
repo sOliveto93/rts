@@ -1,4 +1,4 @@
-package main.java.com;
+package main.java.com.logica;
 import java.util.Objects;
 
 public class Node {
@@ -48,5 +48,45 @@ public class Node {
     @Override
     public int hashCode() {
         return Objects.hash(x, y);
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public double getgCost() {
+        return gCost;
+    }
+
+    public void setgCost(double gCost) {
+        this.gCost = gCost;
+    }
+
+    public double gethCost() {
+        return hCost;
+    }
+
+    public void sethCost(double hCost) {
+        this.hCost = hCost;
+    }
+
+    public double getfCost() {
+        return fCost;
+    }
+
+    public void setfCost(double fCost) {
+        this.fCost = fCost;
     }
 }

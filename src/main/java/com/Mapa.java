@@ -10,7 +10,7 @@ public class Mapa {
     }
 
     public void paint(Graphics g, Camara camara) {
-        int tileSize = 64; // Asumimos que cada tile tiene un tamaño de 64x64
+
         int screenWidth = g.getClipBounds().width;  // Ancho de la ventana
         int screenHeight = g.getClipBounds().height; // Alto de la ventana
 
