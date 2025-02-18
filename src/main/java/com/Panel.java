@@ -1,17 +1,22 @@
 package main.java.com;
 
+import main.java.com.entidad.Edificio;
+import main.java.com.entidad.Entidad;
 import main.java.com.entidad.Unidad;
 import main.java.com.logica.Node;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Panel extends JPanel implements MouseListener, MouseMotionListener, KeyListener {
     private Camara camara;
     private Mapa mapa;
-    private List<Unidad> unidades;
+    private List<Unidad> unidades=new ArrayList<>();
+    List<Edificio> edificios=new ArrayList<>();
+
     private float fps;
     private double ticks;
     Font font;
@@ -22,12 +27,17 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
     //minimo de arrastre del click
     private static final int TOLERANCE = 5;
 
+
     public Panel(Game game) {
 
         this.mapa = game.getMapa();
         setPreferredSize(new Dimension(game.getWidth(), game.getHeight()));
         setBackground(Color.white);
-        unidades = game.getUnidades();
+        edificios.add(new Edificio("castillo",mapa,5,2));
+        unidades.add(new Unidad("soldado raso", (5 * 64)+32, (5 * 64)+32, 2, 100, 5, 5));
+        unidades.add(new Unidad("soldado raso", (4 * 64)+32, (4 * 64)+32, 2, 100, 5, 5));
+        unidades.add(new Unidad("soldado raso", (6 * 64)+32, (2 * 64)+32, 4, 100, 5, 5));
+
         font = new Font("Arial", Font.BOLD, 20);
 
         camara=new Camara(game.getWidth(),game.getHeight());
@@ -37,12 +47,21 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
         addKeyListener(this);
         setFocusable(true);
     }
+    public void update(){
+        for(Unidad u : unidades){
+            u.update();
+        }
+    }
 
     @Override
     public void paint(Graphics g) {
         super.paintComponent(g);
 
         mapa.paint(g,camara);
+
+        for (Edificio edificio: edificios){
+            edificio.paint(g);
+        }
 
         // Dibujar las unidades
         for (Unidad unidad : unidades) {
@@ -53,7 +72,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
         for (Unidad u : unidades) {
             if (u.isSelected() && u.isMoviendo()) {
 
-                List<Node> path = u.getPath();
+                List<Node> path = u.getPathNodes();
                 if (path != null && !path.isEmpty()) {
                     g.setColor(Color.black);
 
@@ -117,6 +136,14 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
 
     public void setTicks(double ticks) {
         this.ticks = ticks;
+    }
+
+    public List<Unidad> getUnidades() {
+        return unidades;
+    }
+
+    public void setUnidades(List<Unidad> unidades) {
+        this.unidades = unidades;
     }
 
 //------------------------------eventos de click
@@ -244,6 +271,12 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
             camara.mover(-moveSpeed, 0, mapa.getTileSheet().length * 64, mapa.getTileSheet()[0].length * 64); // Mover hacia la izquierda
         } else if (e.getKeyCode() == KeyEvent.VK_D) {
             camara.mover(moveSpeed, 0, mapa.getTileSheet().length * 64, mapa.getTileSheet()[0].length * 64); // Mover hacia la derecha
+        }else if (e.getKeyCode() == KeyEvent.VK_P) {
+            if (!edificios.isEmpty()) {
+                edificios.getFirst().resetCasilla();
+                edificios.removeFirst();
+            }
+
         }
     }
 

@@ -21,7 +21,7 @@ public class PathFindingTask implements Runnable {
         List<Node> path = new AStarPathfinding(MAPA).aStar(new Node(UNIDAD.getX() / 64, UNIDAD.getY() / 64), OBJETIVO);
 
         if (path != null && !path.isEmpty()) {
-            UNIDAD.setPath(path);
+            UNIDAD.setPathNodes(path);
             UNIDAD.setMoviendo(true);
         } else {
             UNIDAD.setMoviendo(false);

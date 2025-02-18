@@ -1,5 +1,6 @@
 package main.java.com;
 
+import main.java.com.entidad.Edificio;
 import main.java.com.entidad.Unidad;
 
 import javax.swing.*;
@@ -11,16 +12,13 @@ public class Game extends JFrame implements Runnable {
     int fpsTarget = 60;
     long nanoSeg = 1_000_000_000;
     Mapa mapa;
-    List<Unidad> unidades = new ArrayList<>();
+
 
     Panel panel;
     Thread hiloGame;
 
     public Game() {
         mapa = new Mapa(new TileSheet());
-        unidades.add(new Unidad("soldado raso", (5 * 64)+32, (5 * 64)+32, 2, 100, 5, 5));
-        unidades.add(new Unidad("soldado raso", (4 * 64)+32, (4 * 64)+32, 2, 100, 5, 5));
-        unidades.add(new Unidad("soldado raso", (6 * 64)+32, (2 * 64)+32, 4, 100, 5, 5));
 
         panel=new Panel(this);
         start();
@@ -37,16 +35,6 @@ public class Game extends JFrame implements Runnable {
         hiloGame.start();
 
     }
-
-
-    public List<Unidad> getUnidades() {
-        return unidades;
-    }
-
-    public void setUnidades(List<Unidad> unidades) {
-        this.unidades = unidades;
-    }
-
 
     //----------------------bucle principal
     @Override
@@ -101,9 +89,7 @@ public class Game extends JFrame implements Runnable {
     panel.repaint();
     }
     public void update() {
-       for(Unidad u : unidades){
-           u.update();
-       }
+       panel.update();
     }
 
     public int getFpsTarget() {

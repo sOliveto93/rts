@@ -4,53 +4,48 @@ import main.java.com.Tile;
 import main.java.com.logica.Node;
 import main.java.com.logica.PathFindingTask;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
-public class Unidad {
+public class Unidad extends Entidad {
     private String nombre;
-    private int x;
-    private int y;
     private int velocidad;
     private int vida;
     private int ataque;
     private int defensa;
-    private int size = 64;
     private boolean isSelected = false;
     private int targetX;
     private int targetY;
     private boolean moviendo = false;
     private boolean pathFindingInProgress = false;
     private Node objetivo;
-    private List<Node> path;
-    BufferedImage spriteIdle;
-    private int indexSrpiteIdle=0;
+    private List<Node> pathNodes;
+    private int indexSrpiteIdle = 0;
     //variables para manejar la velocidad de actualizacion de dibujado
-    private long lastSpriteUpdate=0;
-    private final long intervaloActualizacion=100;
+    private long lastSpriteUpdate = 0;
+    private final long intervaloActualizacion = 100;
 
     public Unidad(String nombre, int x, int y, int velocidad, int vida, int ataque, int defensa) {
+
+        super(nombre, x, y, "img/idle.png");
         this.nombre = nombre;
-        this.x = x;
-        this.y = y;
+
+
         this.velocidad = velocidad;
         this.vida = vida;
         this.ataque = ataque;
         this.defensa = defensa;
-        loadSpriteSheet();
+
     }
 
     public void paint(Graphics g) {
         if (isSelected) {
             g.setColor(Color.CYAN);
-            g.drawRect(x, y, size, size);
+            g.drawRect(getX(), getY(), size, size);
         }
 
-            g.drawImage(getTileImage(indexSrpiteIdle),x,y,null);
+        g.drawImage(super.getTileImage(indexSrpiteIdle), getX(), getY(), null);
 
 
     }
@@ -59,82 +54,75 @@ public class Unidad {
         if (moviendo) {
             move();
         }
-        long curretTime=System.currentTimeMillis();
-        if(curretTime-lastSpriteUpdate>intervaloActualizacion){
+        long curretTime = System.currentTimeMillis();
+        if (curretTime - lastSpriteUpdate > intervaloActualizacion) {
             indexSrpiteIdle++;
-            if(indexSrpiteIdle > 2){//cambiar esto para que sea variable por la hoja de sprites
-                indexSrpiteIdle=0;
+            if (indexSrpiteIdle > 2) {//cambiar esto para que sea variable por la hoja de sprites
+                indexSrpiteIdle = 0;
             }
-            lastSpriteUpdate=curretTime;
+            lastSpriteUpdate = curretTime;
         }
 
     }
 
     public boolean clickaUnidad(int mouseX, int mouseY) {
-        return mouseX >= x
-                && mouseX <= x + size
-                && mouseY >= y
-                && mouseY <= y + size;
+        return mouseX >= getX()
+                && mouseX <= getX() + size
+                && mouseY >= getY()
+                && mouseY <= getY() + size;
     }
+
     // Añadir una constante de tolerancia de llegada
     private static final double TOLERANCIA_ARRIBO = 2.0; // Ajusta este valor según lo que consideres apropiado
 
 
-public void move() {
-    if (path != null && !path.isEmpty()) {
-        Node siguienteNodo = path.getFirst();
+    public void move() {
+        if (pathNodes != null && !pathNodes.isEmpty()) {
+            Node siguienteNodo = pathNodes.getFirst();
+            if (siguienteNodo != null) {
+                //centramos el nodo a la celda
+                int targeXPos = siguienteNodo.getX() * 64 + (64 - size) / 2;
+                int targeYPos = siguienteNodo.getY() * 64 + (64 - size) / 2;
+
+                // Desplazar la unidad hacia el siguiente nodo
+                if (getX() < targeXPos) {
+                    int current = getX();
+                    current++;
+                    setX(current);
+                } else if (getX() > targeXPos) {
+                    int current = getX();
+                    current--;
+                    setX(current);
+                }
+
+                if (getY() < targeYPos) {
+                    int current = getY();
+                    current++;
+                    setY(current);
+
+                } else if (getY() > targeYPos) {
+                    int current = getY();
+                    current--;
+                    setY(current);
+
+                }
+
+                // Si la unidad llega al siguiente nodo, lo eliminamos de la lista de camino
+                if (Math.abs(getX() - targeXPos) < TOLERANCIA_ARRIBO && Math.abs(getY() - targeYPos) < TOLERANCIA_ARRIBO) {
+
+                    pathNodes.removeFirst();  // Eliminar el nodo actual del camino
 
 
-        //centramos el nodo a la celda
-        int targeXPos= siguienteNodo.getX()*64+(64-size)/2;
-        int targeYPos= siguienteNodo.getY()*64+(64-size)/2;
+                }
 
-        // Desplazar la unidad hacia el siguiente nodo
-        if (x < targeXPos) {
-            x++;
-        } else if (x > targeXPos) {
-            x--;
-        }
-
-        if (y < targeYPos) {
-            y++;
-        } else if (y > targeYPos) {
-            y--;
-        }
-
-        // Si la unidad llega al siguiente nodo, lo eliminamos de la lista de camino
-        if (Math.abs(x - targeXPos) < TOLERANCIA_ARRIBO && Math.abs(y - targeYPos) < TOLERANCIA_ARRIBO) {
-            path.removeFirst();  // Eliminar el nodo actual del camino
-        }
-
-        // Si no hay más nodos en el camino, detener el movimiento
-        if (path.isEmpty()) {
-            moviendo = false;
-        }
-    }
-}
-
-
-    public void loadSpriteSheet() {
-        try {
-            InputStream input = getClass().getClassLoader().getResourceAsStream("img/idle.png");
-            if (input != null) {
-                spriteIdle = ImageIO.read(input);
-
-            } else {
-                System.out.println("no se encontro el recurso");
+                // Si no hay más nodos en el camino, detener el movimiento
+                if (pathNodes.isEmpty()) {
+                    moviendo = false;
+                }
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
         }
     }
-    public Image getTileImage(int n) {
-        int spriteSheetWidth = spriteIdle.getWidth();
 
-        int cols = spriteSheetWidth / size;
-
-        return spriteIdle.getSubimage(n * size, 0, size, size);
-    }
 
     //-------------------------------get y set------------------
     public String getNombre() {
@@ -145,21 +133,6 @@ public void move() {
         this.nombre = nombre;
     }
 
-    public int getX() {
-        return x;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
 
     public int getVelocidad() {
         return velocidad;
@@ -256,12 +229,14 @@ public void move() {
         }
     }
 
-    public List<Node> getPath() {
-        return path;
+
+    public List<Node> getPathNodes() {
+        return pathNodes;
     }
 
-    public void setPath(List<Node> path) {
-        this.path = path;
+    public void setPathNodes(List<Node> pathNodes) {
+        this.pathNodes = pathNodes;
         pathFindingInProgress = false; // Marcamos que el cálculo ha terminado
     }
+
 }
