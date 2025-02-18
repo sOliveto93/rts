@@ -39,9 +39,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
     public void paint(Graphics g) {
         super.paintComponent(g);
 
-        g.translate(-camara.getX(),-camara.getY());
-
-        mapa.paint(g);
+        mapa.paint(g,camara);
 
         // Dibujar las unidades
         for (int i = 0; i < unidades.size(); i++) {
