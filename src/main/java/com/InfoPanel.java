@@ -4,7 +4,10 @@ import main.java.com.entidad.Edificio;
 import main.java.com.entidad.Entidad;
 import main.java.com.entidad.Unidad;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,44 +23,45 @@ public class InfoPanel {
     boolean mostrarUnidad = false;
     boolean mostrarEjercito = false;
     boolean mostrarEdificio = false;
-
-    public InfoPanel(int w, int h) {
+    Rectangle btnCrear;
+    Camara camara;
+    public InfoPanel(int w, int h,Camara camara) {
         this.w = w;
         this.y = h - this.h;
+        btnCrear = new Rectangle(getX() + 150, getY(), 150, 100);
+        this.camara=camara;
     }
 
     public void paint(Graphics g, Camara camara) {
-        if (!isVisible()) {
-            return;
-        }
         //sumamos para fijarlo que en mapa necesitamos moverlo
         g.translate(+camara.getX(), +camara.getY());
 
         g.setColor(new Color(0, 0, 0, 90));
         g.fillRect(0, y, w, h);
         g.setColor(Color.white);
-        if (mostrarEdificio) {
+        if (mostrarEdificio && edificio != null) {
             g.drawString(edificio.getNombre(), getX(), getY() + 50);
             g.drawImage(edificio.getImagen(), getX(), getY() + 60, 50, 50, null);
+            g.fillRect(btnCrear.x, btnCrear.y, btnCrear.width, btnCrear.height);
         }
-        if (mostrarUnidad) {
+        if (mostrarUnidad && unidad != null) {
             g.drawString(unidad.getNombre(), getX(), getY() + 20);
             g.drawImage(unidad.getImagen(), getX(), getY() + 60, 50, 50, null);
-            g.drawString(unidad.getNombre(), getX()+150, getY() + 20);
-            g.drawString("Ataque: "+unidad.getAtaque(), getX()+150, getY() + 40);
-            g.drawString("Defensa: "+unidad.getDefensa(), getX()+150, getY() + 60);
-            g.drawString("Velocidad: "+unidad.getVelocidad(), getX()+150, getY() + 80);
+            g.drawString(unidad.getNombre(), getX() + 150, getY() + 20);
+            g.drawString("Ataque: " + unidad.getAtaque(), getX() + 150, getY() + 40);
+            g.drawString("Defensa: " + unidad.getDefensa(), getX() + 150, getY() + 60);
+            g.drawString("Velocidad: " + unidad.getVelocidad(), getX() + 150, getY() + 80);
         }
-        if (mostrarEjercito) {
-            int i=0;
-            int j=20;
-            int gap=20;
-            for(Unidad u:unidades){
+        if (mostrarEjercito && unidades != null && !unidades.isEmpty()) {
+            int i = 0;
+            int j = 20;
+            int gap = 20;
+            for (Unidad u : unidades) {
 
-                g.drawRect(getX()+i,getY(),150,100);
-                g.drawString(unidad.getNombre(), getX()+i, getY()+j);
-                g.drawImage(unidad.getImagen(), getX()+i, getY() +j+20, 50, 50, null);
-                i+=150;
+                g.drawRect(getX() + i, getY(), 150, 100);
+                g.drawString(unidad.getNombre(), getX() + i, getY() + j);
+                g.drawImage(unidad.getImagen(), getX() + i, getY() + j + 20, 50, 50, null);
+                i += 150;
             }
         }
 
@@ -121,8 +125,6 @@ public class InfoPanel {
             this.unidades.clear();
         }
 
-
-        setVisible(false);
     }
 
     public boolean isVisible() {
@@ -147,5 +149,38 @@ public class InfoPanel {
 
     public int getH() {
         return h;
+    }
+
+    public boolean clickBotonCrear(int mouseX, int mouseY) {
+
+        return mouseX >= btnCrear.x+ camara.getX()
+                && mouseX <= btnCrear.x + btnCrear.width+ camara.getX()
+                && mouseY >= btnCrear.y+ camara.getY()
+                && mouseY <= btnCrear.y + btnCrear.height+ camara.getY();
+        //g.fillRect(getX()+150,getY(),150,100);
+    }
+
+    public Edificio getEdificio() {
+        return edificio;
+    }
+
+    public void setEdificio(Edificio edificio) {
+        this.edificio = edificio;
+    }
+
+    public Unidad getUnidad() {
+        return unidad;
+    }
+
+    public void setUnidad(Unidad unidad) {
+        this.unidad = unidad;
+    }
+
+    public List<Unidad> getUnidades() {
+        return unidades;
+    }
+
+    public void setUnidades(List<Unidad> unidades) {
+        this.unidades = unidades;
     }
 }

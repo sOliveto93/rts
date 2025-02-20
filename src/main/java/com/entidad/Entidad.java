@@ -12,14 +12,15 @@ public class Entidad {
     private int y;
     String path;
     BufferedImage bufferSheet;
-    int size=64;
+    int size;
     private boolean isSelected = false;
 
-    public Entidad(String nombre, int x, int y, String path) {
+    public Entidad(String nombre, int x, int y, String path,int size) {
         this.nombre = nombre;
+        setSize(size);
         //traducimos a pixeles las celdas
-        this.x = (x*size)-(size/2);
-        this.y = (y*size)-(size/2);
+        this.x = (x*64);
+        this.y = (y*64);
         this.path = path;
 
         loadSpriteSheet(getPath());
@@ -28,7 +29,7 @@ public class Entidad {
     public void paint(Graphics g){
         if (isSelected()) {
             g.setColor(Color.cyan);
-            g.drawRect(getX(), getY(), size, size);
+            g.drawRect(getX(),getY(), size, size);
         }
     }
 

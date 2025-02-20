@@ -7,27 +7,31 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 public class Edificio extends Entidad {
 
     Mapa mapa;
     int celdaX;
     int celdaY;
-    Image imagen;
+    Image imagenEdificio;
+
+
     public Edificio(String nombre, Mapa mapa, int x, int y) {
         //x e y son traducidas a escala del mapa
-        super(nombre, x, y, "img/builds.png");
+        super(nombre, x, y, "img/builds.png",64);
         celdaX=x;
         celdaY=y;
         this.mapa = mapa;
-        imagen=getTileImage(0);
+        imagenEdificio=getTileImage(0);
+
 //seteamos esa casilla como obstaculo
         mapa.getTileSheet()[celdaX][celdaY].setObstaculo(true);
     }
 
     public void paint(Graphics g) {
         super.paint(g);
-        g.drawImage(imagen, getX() , getY() , null);
+        g.drawImage(imagenEdificio, getX() , getY() , null);
 
     }
 
@@ -44,10 +48,26 @@ public class Edificio extends Entidad {
     }
 
     public Image getImagen() {
-        return imagen;
+        return imagenEdificio;
     }
 
     public void setImagen(Image imagen) {
-        this.imagen = imagen;
+        this.imagenEdificio = imagen;
+    }
+
+    public int getCeldaX() {
+        return celdaX;
+    }
+
+    public void setCeldaX(int celdaX) {
+        this.celdaX = celdaX;
+    }
+
+    public int getCeldaY() {
+        return celdaY;
+    }
+
+    public void setCeldaY(int celdaY) {
+        this.celdaY = celdaY;
     }
 }

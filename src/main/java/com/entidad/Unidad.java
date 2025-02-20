@@ -28,7 +28,7 @@ public class Unidad extends Entidad {
     Image imagen;
     public Unidad(String nombre, int x, int y, int velocidad, int vida, int ataque, int defensa) {
 
-        super(nombre, x, y, "img/idle.png");
+        super(nombre, x, y, "img/idleX32.png",32);
         this.nombre = nombre;
 
         this.velocidad = velocidad;
@@ -40,10 +40,7 @@ public class Unidad extends Entidad {
 
     public void paint(Graphics g) {
         super.paint(g);
-
         g.drawImage(super.getTileImage(indexSrpiteIdle), getX(), getY(), null);
-
-
     }
 
     public void update() {
@@ -53,7 +50,7 @@ public class Unidad extends Entidad {
         long curretTime = System.currentTimeMillis();
         if (curretTime - lastSpriteUpdate > intervaloActualizacion) {
             indexSrpiteIdle++;
-            if (indexSrpiteIdle > 2) {//cambiar esto para que sea variable por la hoja de sprites
+            if (indexSrpiteIdle > 1) {//cambiar esto para que sea variable por la hoja de sprites
                 indexSrpiteIdle = 0;
             }
             lastSpriteUpdate = curretTime;
@@ -74,28 +71,7 @@ public class Unidad extends Entidad {
                 int targeXPos = siguienteNodo.getX() * 64 + (64 - size) / 2;
                 int targeYPos = siguienteNodo.getY() * 64 + (64 - size) / 2;
 
-                // Desplazar la unidad hacia el siguiente nodo
-                if (getX() < targeXPos) {
-                    int current = getX();
-                    current++;
-                    setX(current);
-                } else if (getX() > targeXPos) {
-                    int current = getX();
-                    current--;
-                    setX(current);
-                }
-
-                if (getY() < targeYPos) {
-                    int current = getY();
-                    current++;
-                    setY(current);
-
-                } else if (getY() > targeYPos) {
-                    int current = getY();
-                    current--;
-                    setY(current);
-
-                }
+                desplazarPorVelocidad(targeXPos,targeYPos);
 
                 // Si la unidad llega al siguiente nodo, lo eliminamos de la lista de camino
                 if (Math.abs(getX() - targeXPos) < TOLERANCIA_ARRIBO && Math.abs(getY() - targeYPos) < TOLERANCIA_ARRIBO) {
@@ -111,8 +87,32 @@ public class Unidad extends Entidad {
                 }
             }
         }
+
+    }
+public void desplazarPorVelocidad(int targeXPos,int targeYPos){
+    // Desplazar la unidad hacia el siguiente nodo
+    if (getX() < targeXPos) {
+        int current = getX();
+        current++;
+        setX(current);
+    } else if (getX() > targeXPos) {
+        int current = getX();
+        current--;
+        setX(current);
     }
 
+    if (getY() < targeYPos) {
+        int current = getY();
+        current++;
+        setY(current);
+
+    } else if (getY() > targeYPos) {
+        int current = getY();
+        current--;
+        setY(current);
+
+    }
+}
 
     //-------------------------------get y set------------------
     public String getNombre() {
@@ -225,4 +225,6 @@ public class Unidad extends Entidad {
     public Image getImagen() {
         return imagen;
     }
+
+
 }

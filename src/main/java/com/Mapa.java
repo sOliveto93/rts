@@ -26,7 +26,9 @@ public class Mapa {
         for (int i = startX; i < endX; i++) {
             for (int j = startY; j < endY; j++) {
                 Tile tile = tileSheet.getTileSheet()[i][j];
+
                 g.drawImage(tile.getImage(), i * tileSize, j * tileSize, null); // Dibujar el tile
+                g.drawRect(i*tileSize,j*tileSize,tileSize,tileSize);
             }
         }
 

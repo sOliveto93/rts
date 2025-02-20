@@ -1,5 +1,7 @@
 package main.java.com;
 
+import main.java.com.logica.Node;
+
 import java.awt.*;
 
 public class Tile {
@@ -13,7 +15,12 @@ public class Tile {
         this.isObstaculo=isObstaculo;
 
     }
-
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        return false;
+    }
     public int getSize() {
         return size;
     }
