@@ -15,21 +15,27 @@ public class Game extends JFrame implements Runnable {
 
 
     Panel panel;
+
     Thread hiloGame;
 
     public Game() {
+        this.setTitle("Juego rpg");
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setSize(640, 640);
+
+
         mapa = new Mapa(new TileSheet());
 
-        panel=new Panel(this);
+        panel=new Panel(mapa,this.getWidth(),this.getHeight());
+
+
+        this.add(panel);
+        this.setVisible(true);
         start();
     }
 
     public void start() {
-        this.setTitle("Juego rpg");
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(640, 640);
-        this.add(panel);
-        this.setVisible(true);
+
 
         hiloGame = new Thread(this);
         hiloGame.start();

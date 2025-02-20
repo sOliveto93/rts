@@ -12,10 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Panel extends JPanel implements MouseListener, MouseMotionListener, KeyListener {
+
+    private int ancho,alto;
     private Camara camara;
     private Mapa mapa;
-    private List<Unidad> unidades=new ArrayList<>();
-    List<Edificio> edificios=new ArrayList<>();
+    private List<Unidad> unidades = new ArrayList<>();
+    List<Edificio> edificios = new ArrayList<>();
 
     private float fps;
     private double ticks;
@@ -27,39 +29,46 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
     //minimo de arrastre del click
     private static final int TOLERANCE = 5;
 
+//panel de informacion
+    InfoPanel infoPanel;
 
-    public Panel(Game game) {
-
-        this.mapa = game.getMapa();
-        setPreferredSize(new Dimension(game.getWidth(), game.getHeight()));
+    public Panel(Mapa mapa,int ancho,int alto) {
+        this.ancho=ancho;
+        this.alto=alto;
+        this.mapa = mapa;
+        setPreferredSize(new Dimension(ancho, alto));
         setBackground(Color.white);
-        edificios.add(new Edificio("castillo",mapa,5,2));
-        unidades.add(new Unidad("soldado raso", (5 * 64)+32, (5 * 64)+32, 2, 100, 5, 5));
-        unidades.add(new Unidad("soldado raso", (4 * 64)+32, (4 * 64)+32, 2, 100, 5, 5));
-        unidades.add(new Unidad("soldado raso", (6 * 64)+32, (2 * 64)+32, 4, 100, 5, 5));
+        edificios.add(new Edificio("castillo", mapa, 5, 2));
+        unidades.add(new Unidad("soldado raso", 5 , 5 , 2, 100, 5, 5));
+        unidades.add(new Unidad("soldado raso", 4, 4  , 2, 100, 5, 5));
+        unidades.add(new Unidad("soldado raso", 6 , 2 , 4, 100, 5, 5));
+        unidades.add(new Unidad("soldado raso", 6 , 3 , 4, 100, 5, 5));
 
         font = new Font("Arial", Font.BOLD, 20);
+        camara = new Camara(ancho, alto);
+        infoPanel=new InfoPanel(ancho,alto);
 
-        camara=new Camara(game.getWidth(),game.getHeight());
 
         addMouseListener(this);
         addMouseMotionListener(this);
         addKeyListener(this);
         setFocusable(true);
     }
-    public void update(){
-        for(Unidad u : unidades){
+
+    public void update() {
+        for (Unidad u : unidades) {
             u.update();
         }
+
     }
 
     @Override
     public void paint(Graphics g) {
         super.paintComponent(g);
 
-        mapa.paint(g,camara);
+        mapa.paint(g, camara);
 
-        for (Edificio edificio: edificios){
+        for (Edificio edificio : edificios) {
             edificio.paint(g);
         }
 
@@ -114,11 +123,13 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
         }
 
 
+
         // Mostrar información adicional (FPS, ticks)
         g.setFont(font);
         g.setColor(Color.WHITE);
         g.drawString("FPS: " + fps, 10, 20);
         g.drawString("Ticks: " + ticks, 10, 40);
+        infoPanel.paint(g,camara);
     }
 
 
@@ -152,15 +163,17 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {  // clic izquierdo
-            startX = e.getX()+camara.getX();
-            startY = e.getY()+camara.getY();
+            startX = e.getX() + camara.getX();
+            startY = e.getY() + camara.getY();
             // Empezamos el proceso de selección
-
+            infoPanel.ocultarMenu();
             // Si no se hizo clic en ninguna unidad, deseleccionamos todas
             for (Unidad u : unidades) {
                 u.setSelected(false);
             }
-
+            for(Edificio ed:edificios){
+                ed.setSelected(false);
+            }
         }
     }
 
@@ -170,8 +183,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
             for (Unidad u : unidades) {
                 if (u.isSelected()) {
                     // Obtener coordenadas para el destino y mover la unidad
-                    int targetX = (e.getX()+camara.getX()) / 64;
-                    int targetY = (e.getY()+camara.getY()) / 64;
+                    int targetX = (e.getX() + camara.getX()) / 64;
+                    int targetY = (e.getY() + camara.getY()) / 64;
                     Tile targetTile = mapa.getTileSheet()[targetX][targetY];
 
                     if (!targetTile.isObstaculo()) {
@@ -188,35 +201,53 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
         }
         if (e.getButton() == MouseEvent.BUTTON1) {  // clic izquierdo
             // Ajustar las coordenadas del clic con el desplazamiento de la cámara
-            int adjustedStartX = startX ;
-            int adjustedStartY = startY ;
-            int adjustedEndX =  e.getX()+ camara.getX();
-            int adjustedEndY =  e.getY()+camara.getY();
+            int adjustedStartX = startX;
+            int adjustedStartY = startY;
+            int adjustedEndX = e.getX() + camara.getX();
+            int adjustedEndY = e.getY() + camara.getY();
 
             isSelecting = false;  // Terminamos la selección
-
 
 
             // Verificamos si el movimiento fue un arrastre o un clic simple
             if (Math.abs(adjustedStartX - adjustedEndX) < TOLERANCE && Math.abs(adjustedStartY - adjustedEndY) < TOLERANCE) {
                 // Es un clic simple: seleccionar o deseleccionar una unidad
                 for (Unidad u : unidades) {
-                    if (u.clickaUnidad(adjustedStartX, adjustedStartY)) {
-                        u.setSelected(!u.isSelected());  // Alternar selección
+                    if (u.clickaEntidad(adjustedStartX, adjustedStartY)) {
+                        u.setSelected(!u.isSelected());
+                       //mostrar info
+                        List<Entidad> entidad=new ArrayList<>();
+                        entidad.add(u);
+                        infoPanel.mostrarInformacion(entidad);
+                    }
+                }
+                for(Edificio ed:edificios){
+                    if (ed.clickaEntidad(adjustedStartX, adjustedStartY)) {
+                        ed.setSelected(!ed.isSelected());
+                       //mostrarinfo
+                        List<Entidad> entidad=new ArrayList<>();
+                        entidad.add(ed);
+                        infoPanel.mostrarInformacion(entidad);
                     }
                 }
             } else {
                 // Es un arrastre: seleccionamos unidades dentro del área
                 Rectangle selectionRect = new Rectangle(Math.min(adjustedStartX, adjustedEndX), Math.min(adjustedStartY, adjustedEndY),
                         Math.abs(adjustedEndX - adjustedStartX), Math.abs(adjustedEndY - adjustedStartY));
-
+                List<Entidad> entidades=new ArrayList<>();
                 for (Unidad u : unidades) {
-                    if (selectionRect.contains( u.getX(), u.getY())) {
+                    if (selectionRect.contains(u.getX(), u.getY())) {
                         u.setSelected(true);
+                       //mostrar info
+
+                        entidades.add(u);
+
+
                     } else {
                         u.setSelected(false);
+
                     }
-                }
+                } infoPanel.mostrarInformacion(entidades);
             }
         }
     }
@@ -230,7 +261,6 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
             endY = e.getY() + camara.getY();
         }
     }
-
 
 
     @Override
@@ -271,7 +301,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener,
             camara.mover(-moveSpeed, 0, mapa.getTileSheet().length * 64, mapa.getTileSheet()[0].length * 64); // Mover hacia la izquierda
         } else if (e.getKeyCode() == KeyEvent.VK_D) {
             camara.mover(moveSpeed, 0, mapa.getTileSheet().length * 64, mapa.getTileSheet()[0].length * 64); // Mover hacia la derecha
-        }else if (e.getKeyCode() == KeyEvent.VK_P) {
+        } else if (e.getKeyCode() == KeyEvent.VK_P) {
             if (!edificios.isEmpty()) {
                 edificios.getFirst().resetCasilla();
                 edificios.removeFirst();

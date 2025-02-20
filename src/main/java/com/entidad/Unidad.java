@@ -14,7 +14,7 @@ public class Unidad extends Entidad {
     private int vida;
     private int ataque;
     private int defensa;
-    private boolean isSelected = false;
+
     private int targetX;
     private int targetY;
     private boolean moviendo = false;
@@ -25,25 +25,21 @@ public class Unidad extends Entidad {
     //variables para manejar la velocidad de actualizacion de dibujado
     private long lastSpriteUpdate = 0;
     private final long intervaloActualizacion = 100;
-
+    Image imagen;
     public Unidad(String nombre, int x, int y, int velocidad, int vida, int ataque, int defensa) {
 
         super(nombre, x, y, "img/idle.png");
         this.nombre = nombre;
 
-
         this.velocidad = velocidad;
         this.vida = vida;
         this.ataque = ataque;
         this.defensa = defensa;
-
+        imagen=getTileImage(0);
     }
 
     public void paint(Graphics g) {
-        if (isSelected) {
-            g.setColor(Color.CYAN);
-            g.drawRect(getX(), getY(), size, size);
-        }
+        super.paint(g);
 
         g.drawImage(super.getTileImage(indexSrpiteIdle), getX(), getY(), null);
 
@@ -65,12 +61,6 @@ public class Unidad extends Entidad {
 
     }
 
-    public boolean clickaUnidad(int mouseX, int mouseY) {
-        return mouseX >= getX()
-                && mouseX <= getX() + size
-                && mouseY >= getY()
-                && mouseY <= getY() + size;
-    }
 
     // Añadir una constante de tolerancia de llegada
     private static final double TOLERANCIA_ARRIBO = 2.0; // Ajusta este valor según lo que consideres apropiado
@@ -174,13 +164,6 @@ public class Unidad extends Entidad {
         this.size = size;
     }
 
-    public boolean isSelected() {
-        return isSelected;
-    }
-
-    public void setSelected(boolean selected) {
-        isSelected = selected;
-    }
 
     public int getTargetX() {
         return targetX;
@@ -239,4 +222,7 @@ public class Unidad extends Entidad {
         pathFindingInProgress = false; // Marcamos que el cálculo ha terminado
     }
 
+    public Image getImagen() {
+        return imagen;
+    }
 }

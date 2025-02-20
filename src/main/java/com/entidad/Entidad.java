@@ -13,15 +13,23 @@ public class Entidad {
     String path;
     BufferedImage bufferSheet;
     int size=64;
+    private boolean isSelected = false;
 
     public Entidad(String nombre, int x, int y, String path) {
         this.nombre = nombre;
-        this.x = x;
-        this.y = y;
+        //traducimos a pixeles las celdas
+        this.x = (x*size)-(size/2);
+        this.y = (y*size)-(size/2);
         this.path = path;
 
         loadSpriteSheet(getPath());
 
+    }
+    public void paint(Graphics g){
+        if (isSelected()) {
+            g.setColor(Color.cyan);
+            g.drawRect(getX(), getY(), size, size);
+        }
     }
 
     public void loadSpriteSheet(String path) {
@@ -38,6 +46,13 @@ public class Entidad {
         }
     }
 
+    public boolean clickaEntidad(int mouseX, int mouseY) {
+
+        return mouseX >= getX()
+                && mouseX <= getX() + size
+                && mouseY >= getY()
+                && mouseY <= getY() + size;
+    }
     public Image getTileImage(int n) {
         int spriteSheetWidth = bufferSheet.getWidth();
 
@@ -93,5 +108,12 @@ public class Entidad {
 
     public void setSize(int size) {
         this.size = size;
+    }
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
     }
 }

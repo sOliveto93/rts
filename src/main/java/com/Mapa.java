@@ -19,7 +19,6 @@ public class Mapa {
         int startY = Math.max(0, camara.getY() / tileSize);
         int endX = Math.min(tileSheet.getTileSheet().length, (camara.getX() + screenWidth) / tileSize + 1);
         int endY = Math.min(tileSheet.getTileSheet()[0].length, (camara.getY() + screenHeight) / tileSize + 1);
-
         // Desplazar el sistema de coordenadas para dibujar correctamente según la cámara
         g.translate(-camara.getX(), -camara.getY());
 
@@ -30,6 +29,7 @@ public class Mapa {
                 g.drawImage(tile.getImage(), i * tileSize, j * tileSize, null); // Dibujar el tile
             }
         }
+
     }
 
 
